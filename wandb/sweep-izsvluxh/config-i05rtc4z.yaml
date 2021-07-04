@@ -1,0 +1,16 @@
+wandb_version: 1
+
+architecture:
+  value: Linear
+dataset:
+  value: wine dataset
+hidden_size:
+  value: 83
+input_size:
+  value: 7
+learning_rate:
+  value: 0.019516212739004616
+loss:
+  value: NLLLoss()
+output_size:
+  value: 2
