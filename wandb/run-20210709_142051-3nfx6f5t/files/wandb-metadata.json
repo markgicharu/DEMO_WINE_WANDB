@@ -1,0 +1,24 @@
+{
+    "os": "Windows-10-10.0.19041-SP0",
+    "python": "3.8.6",
+    "heartbeatAt": "2021-07-09T11:20:53.565791",
+    "startedAt": "2021-07-09T11:20:51.126679",
+    "docker": null,
+    "gpu": "GeForce RTX 2060",
+    "gpu_count": 1,
+    "cpu_count": 12,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "main.py",
+    "codePath": "main.py",
+    "git": {
+        "remote": "https://github.com/markgicharu/DEMO_WINE_WANDB.git",
+        "commit": "baee1929de529d1609ebd780334f4806799f4ead"
+    },
+    "email": "16897706+markgicharu@users.noreply.github.com",
+    "root": "C:/Users/markg/Documents/PROGRAMMING/PYTHON_PROJECTS/TORCH/DEMO_WINE_WANDB",
+    "host": "LAPTOP-U783TURU",
+    "username": "markg",
+    "executable": "C:\\Users\\markg\\venv\\torch-venv\\Scripts\\python.exe"
+}
