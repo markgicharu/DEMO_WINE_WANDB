@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 import torch.optim as optim
+import torchmetrics
 
 # Encode target labels with value between 0 and n_classes-1.
 # Import Metrics for use with evaluation

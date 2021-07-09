@@ -1,0 +1,16 @@
+
+wandb: WARNING Calling run.save without any arguments is deprecated.Changes to attributes are automatically persisted.
+graph(%input : Float(124, 13, strides=[1, 124], requires_grad=0, device=cpu),
+      %fc1.weight : Float(100, 13, strides=[13, 1], requires_grad=1, device=cpu),
+      %fc1.bias : Float(100, strides=[1], requires_grad=1, device=cpu),
+      %fc2.weight : Float(100, 100, strides=[100, 1], requires_grad=1, device=cpu),
+      %fc2.bias : Float(100, strides=[1], requires_grad=1, device=cpu),
+      %fc3.weight : Float(3, 100, strides=[100, 1], requires_grad=1, device=cpu),
+      %fc3.bias : Float(3, strides=[1], requires_grad=1, device=cpu)):
+  %7 : Float(124, 100, strides=[100, 1], requires_grad=1, device=cpu) = onnx::Gemm[alpha=1., beta=1., transB=1](%input, %fc1.weight, %fc1.bias) # c:\Users\markg\venv\torch-venv\lib\site-packages\torch\nn\functional.py:1753:0
+  %8 : Float(124, 100, strides=[100, 1], requires_grad=1, device=cpu) = onnx::Sigmoid(%7) # <ipython-input-62-c3aa4c118253>:10:0
+  %9 : Float(124, 100, strides=[100, 1], requires_grad=1, device=cpu) = onnx::Gemm[alpha=1., beta=1., transB=1](%8, %fc2.weight, %fc2.bias) # c:\Users\markg\venv\torch-venv\lib\site-packages\torch\nn\functional.py:1753:0
+  %10 : Float(124, 100, strides=[100, 1], requires_grad=1, device=cpu) = onnx::Sigmoid(%9) # <ipython-input-62-c3aa4c118253>:11:0
+  %11 : Float(124, 3, strides=[3, 1], requires_grad=1, device=cpu) = onnx::Gemm[alpha=1., beta=1., transB=1](%10, %fc3.weight, %fc3.bias) # c:\Users\markg\venv\torch-venv\lib\site-packages\torch\nn\functional.py:1753:0
+  %output : Float(124, 3, strides=[3, 1], requires_grad=1, device=cpu) = onnx::LogSoftmax[axis=1](%11) # c:\Users\markg\venv\torch-venv\lib\site-packages\torch\nn\functional.py:1672:0
+  return (%output)
