@@ -50,3 +50,5 @@ wandb/run-20210710_150737-3ovfg9md/files/wandb-metadata.json
 wandb/run-20210710_150737-3ovfg9md/files/wandb-summary.json
 wandb/run-20210710_150737-3ovfg9md/logs/debug-internal.log
 wandb/run-20210710_150737-3ovfg9md/logs/debug.log
+images/Mark-Profile_test.jpeg
+kornia_edge_detect.py
