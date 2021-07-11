@@ -79,3 +79,5 @@ lightning_logs/version_8/events.out.tfevents.1626011257.LAPTOP-U783TURU.12440.0
 lightning_logs/version_8/hparams.yaml
 models/*
 
+models/home_state_dict.pt
+models/home_state_test.onnx
