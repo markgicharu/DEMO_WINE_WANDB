@@ -8,6 +8,7 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 import torch.optim as optim
+import torchmetrics
 
 # Encode target labels with value between 0 and n_classes-1.
 # Import Metrics for use with evaluation
@@ -127,11 +128,13 @@ with wandb.init(project="demo_wandb_sklearn", config=config):
         Ypred = model(Xtrain)
 
         loss = loss_fn(Ypred, Ytrain)
+        acc = torchmetrics.functional.accuracy(Ypred, Ytrain)
         loss.backward()
 
         optimizer.step()
 
-        wandb.log({'Epoch': epoch, "Loss": loss.item()})
+        wandb.log(
+            {"Train": {'Epoch': epoch, "Loss": loss.item(), "Accuracy": acc}})
 
     # SAVE MODEL STATE DICT TO DISK
 
@@ -153,18 +156,22 @@ with wandb.init(project="demo_wandb_sklearn", config=config):
     wandb.sklearn.plot_confusion_matrix(Ytest, predict_y, labels=[0, 1, 2])
     # Print Metrics
 
-    wandb.log({"accuracy_score": accuracy_score(Ytest, predict_y),
+    wandb.log({"Validate": {"accuracy_score": accuracy_score(Ytest, predict_y),
                "precision_score": precision_score(Ytest, predict_y, average='weighted'),
-               "recall_score": recall_score(Ytest, predict_y, average="weighted")})
+                            "recall_score": recall_score(Ytest, predict_y, average="weighted")}})
 
     table = wandb.Table(data=df, columns=[df_features, df_target])
     wandb.log({"Data Table": table})
 
     torch.onnx.export(model=model, args=(Xtrain), f="./models/wine_test.onnx", input_names=['input'], output_names=['output'],
                       verbose=True, do_constant_folding=True, opset_version=11)
+    # COPY ONNX TO WANDB RUN DIR FOR LOGGING
     shutil.copy("./models/wine_test.onnx",
                 os.path.join(wandb.run.dir,
-                             "wine_test.onnx)"))
-    #wandb.save(config.get("onnx_model_path"))
+                             "wine_test.onnx"))
+    # COPY PT TO WANDB RUN DIR FOR LOGGING
+    shutil.copy("./models/wine_train.pt",
+                os.path.join(wandb.run.dir, "wine_train.pt"))
+
 wandb.finish()
 torch.cuda.empty_cache()
