@@ -80,10 +80,13 @@ config = dict(
     architecture='Linear',
     onnx_model_path="/models/wine_model.onnx",
     learning_rate=0.01,
-    # loss=nn.NLLLoss(),
-    loss=nn.CrossEntropyLoss(),
-    # optimizer="adam",
-    optimizer="adagrad"
+    # CHANGE THE LOSS
+    loss=nn.NLLLoss(),
+    #loss=nn.CrossEntropyLoss(),
+    # CHANGE THE OPTIMIZER
+    optimizer="adam",
+    #optimizer = "SGD",
+    #optimizer="adagrad"
 )
 for k, v in config.items():
     print(f"wandb config{k}:{v}")
@@ -159,9 +162,10 @@ with wandb.init(project="demo_wandb_sklearn", config=config):
     # VISUALIZE CONFUSION MATRIX
 
     wandb.sklearn.plot_confusion_matrix(Ytest, predict_y, labels=[0, 1, 2])
+
     # Print Metrics
 
-    wandb.log({"Validate": {"accuracy_score": accuracy_score(Ytest, predict_y),
+    wandb.log({"Test": {"accuracy_score": accuracy_score(Ytest, predict_y),
                "precision_score": precision_score(Ytest, predict_y, average='weighted'),
                             "recall_score": recall_score(Ytest, predict_y, average="weighted")}})
 
@@ -180,3 +184,5 @@ with wandb.init(project="demo_wandb_sklearn", config=config):
 
 wandb.finish()
 torch.cuda.empty_cache()
+
+# END OF FILE
