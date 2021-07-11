@@ -99,14 +99,14 @@ class Net(nn.Module):
         self.fc2 = nn.Linear(hidden_size, hidden_size)
         self.fc3 = nn.Linear(hidden_size, output_size)
 
-        #ADD DROPOUT
-        self.dropout = nn.Dropout(p=0.25)
+        # ADD DROPOUT
+        self.dropout = nn.Dropout(p=0.25)  # DROPOUT
 
     def forward(self, X):
         X = torch.sigmoid((self.fc1(X)))
-        X = self.dropout(X)
+        X = self.dropout(X)  # DROPOUT
         X = torch.sigmoid(self.fc2(X))
-        X = self.dropout(X)
+        X = self.dropout(X)  # DROPOUT
         X = self.fc3(X)
 
         return F.log_softmax(X, dim=-1)
@@ -152,22 +152,31 @@ with wandb.init(project="demo_wandb_sklearn", config=config):
     new_model.eval()
 
     # SET THE PREDICTIONS
+    for epoch in range(epochs):
+        test_loss = 0
+        val_acc = 0
 
-    predict = new_model(Xtest)
-    _, predict_y = torch.max(predict, 1)
+        predict = new_model(Xtest)
+        _, predict_y = torch.max(predict, 1)
+        test_loss += loss_fn(predict_y, y_test).item()
+        val_acc += torchmetrics.functional.accuracy(predict_y, y_test)
 
-    # VISUALIZE CONFUSION MATRIX
+        # Print Metrics
+        wandb.log(
+            {"Validate": {'Epoch': epoch, "Loss": test_loss.item(), "Accuracy": val_acc}})
 
-    wandb.sklearn.plot_confusion_matrix(Ytest, predict_y, labels=[0, 1, 2])
-    # Print Metrics
-
-    wandb.log({"Validate": {"accuracy_score": accuracy_score(Ytest, predict_y),
-               "precision_score": precision_score(Ytest, predict_y, average='weighted'),
+    wandb.log({"Test": {"accuracy_score": accuracy_score(Ytest, predict_y),
+                            "precision_score": precision_score(Ytest, predict_y, average='weighted'),
                             "recall_score": recall_score(Ytest, predict_y, average="weighted")}})
 
+    # LOG THE DATABLE FOR THE DATASET
     table = wandb.Table(data=df, columns=[df_features, df_target])
     wandb.log({"Data Table": table})
 
+    # VISUALIZE CONFUSION MATRIX
+    wandb.sklearn.plot_confusion_matrix(Ytest, predict_y, labels=[0, 1, 2])
+
+    # EXPORT THE MODEL
     torch.onnx.export(model=model, args=(Xtrain), f="./models/wine_test.onnx", input_names=['input'], output_names=['output'],
                       verbose=True, do_constant_folding=True, opset_version=11)
     # COPY ONNX TO WANDB RUN DIR FOR LOGGING
