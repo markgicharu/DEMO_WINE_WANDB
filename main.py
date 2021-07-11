@@ -1,3 +1,4 @@
+import wandb
 import pandas as pd
 import numpy as np
 
@@ -16,11 +17,10 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, confu
 
 from sklearn.model_selection import train_test_split
 
-#set device to cuda if available else pass to cpu
+# set device to cuda if available else pass to cpu
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-import wandb
-#%env "WANDB_NOTEBOOK_NAME" "demo_wine_wandb_test"
+# %env "WANDB_NOTEBOOK_NAME" "demo_wine_wandb_test"
 wandb.login()
 
 df = pd.read_csv("./data/wine_data.csv")
@@ -40,10 +40,10 @@ df_target = df[['Class']]
 df_target.head()
 
 # Split the dataset
-X_train, x_test, Y_train, y_test = train_test_split(df_features, 
+X_train, x_test, Y_train, y_test = train_test_split(df_features,
                                                     df_target,
                                                     test_size=0.3,
-                                                     random_state=42)
+                                                    random_state=42)
 
 
 X_train.shape, x_test.shape,  Y_train.shape, y_test.shape,
@@ -56,7 +56,7 @@ print(Xtrain.dtype, Xtest.dtype)
 
 # Reshape tensor to 1D
 
-Ytrain = torch.from_numpy(Y_train.values).view(1,-1)[0]
+Ytrain = torch.from_numpy(Y_train.values).view(1, -1)[0]
 Ytest = torch.from_numpy(y_test.values).view(1, -1)[0]
 print(Ytrain.shape, Ytest.shape)
 
@@ -65,22 +65,25 @@ output_size = 3
 hidden_size = 100
 
 config = dict(
-                input_size = 13,
-                output_size = 3,
-                hidden_size = 100,
-                dataset = "wine dataset",
-                architecture = 'Linear', 
-                learning_rate = 0.01,
-                loss = nn.NLLLoss(),
-                optimizer = "adam",
+    input_size=13,
+    output_size=3,
+    hidden_size=100,
+    dataset="wine dataset",
+    architecture='Linear',
+    learning_rate=0.01,
+    loss=nn.NLLLoss(),
+    # loss=nn.CrossEntropyLoss(),
+    optimizer="adam",
+    #optimizer= "adagrad"
 )
-for k,v in config.items():
+for k, v in config.items():
     print(f"wandb config{k}:{v}")
 
 # Define Class Net
 
+
 class Net(nn.Module):
-    
+
     def __init__(self):
         super(Net, self).__init__()
         self.fc1 = nn.Linear(input_size, hidden_size)
@@ -94,6 +97,7 @@ class Net(nn.Module):
 
         return F.log_softmax(X, dim=-1)
 
+
 # Instantiate the model
 model = Net()
 # preview out model
@@ -106,11 +110,11 @@ loss_fn = config.get("loss")
 # TRAIN THE MODEL
 
 epochs = 1000
-with wandb.init(project="demo_wandb_test", config = config):
+with wandb.init(project="demo_wandb_sklearn", config=config):
     wandb.watch(model, criterion=None, log="gradients", log_freq=10)
-    
+
     for epoch in range(epochs):
-        
+
         optimizer.zero_grad()
         Ypred = model(Xtrain)
 
@@ -121,15 +125,14 @@ with wandb.init(project="demo_wandb_test", config = config):
 
         wandb.log({'Epoch': epoch, "Loss": loss.item()})
 
-
     # SAVE MODEL STATE DICT TO DISK
 
-    wandb.save(torch.save(model.state_dict(), "./models/home_state_dict.pt"))
+    wandb.save(torch.save(model.state_dict(), "./models/wine_train.pt"))
 
     # LOAD MODEL FROM DISK and EVALUATE
 
-    new_model =  Net()
-    new_model.load_state_dict(torch.load("./models/home_state_dict.pt"))
+    new_model = Net()
+    new_model.load_state_dict(torch.load("./models/wine_train.pt"))
     new_model.eval()
 
     # SET THE PREDICTIONS
@@ -139,13 +142,16 @@ with wandb.init(project="demo_wandb_test", config = config):
 
     # VISUALIZE CONFUSION MATRIX
 
-    wandb.sklearn.plot_confusion_matrix(Ytest, predict_y, labels = [0,1,2])
+    wandb.sklearn.plot_confusion_matrix(Ytest, predict_y, labels=[0, 1, 2])
     # Print Metrics
 
-    wandb.log({"accuracy_score" : accuracy_score(Ytest, predict_y),
-    "precision_score" : precision_score(Ytest, predict_y, average='weighted'),
-    "recall_score": recall_score(Ytest, predict_y, average="weighted")})
-    
-    torch.onnx.export(model = model,args =  (Xtrain), f = "./models/home_state_test.onnx", input_names=['input'], output_names = ['output'],
-    verbose=True, do_constant_folding=True, opset_version=11)
+    wandb.log({"accuracy_score": accuracy_score(Ytest, predict_y),
+               "precision_score": precision_score(Ytest, predict_y, average='weighted'),
+               "recall_score": recall_score(Ytest, predict_y, average="weighted")})
+
+    table = wandb.Table(data=df, columns=[df_features, df_target])
+    wandb.log({"Data Table": table})
+
+    torch.onnx.export(model=model, args=(Xtrain), f="./models/wine_test.onnx", input_names=['input'], output_names=['output'],
+                      verbose=True, do_constant_folding=True, opset_version=11)
 wandb.finish()
