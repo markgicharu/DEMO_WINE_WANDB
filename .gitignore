@@ -77,5 +77,5 @@ lightning_logs/version_7/events.out.tfevents.1626011253.LAPTOP-U783TURU.9616.0
 lightning_logs/version_7/hparams.yaml
 lightning_logs/version_8/events.out.tfevents.1626011257.LAPTOP-U783TURU.12440.0
 lightning_logs/version_8/hparams.yaml
-models*
+models/*
 
