@@ -77,7 +77,7 @@ config = dict(
     hidden_size=100,
     dataset="wine dataset",
     architecture='Linear',
-    onnx_model_path = "./models/",
+    onnx_model_path="/models/wine_model.onnx",
     learning_rate=0.01,
     # loss=nn.NLLLoss(),
     loss=nn.CrossEntropyLoss(),
@@ -160,11 +160,11 @@ with wandb.init(project="demo_wandb_sklearn", config=config):
     table = wandb.Table(data=df, columns=[df_features, df_target])
     wandb.log({"Data Table": table})
 
-    torch.onnx.export(model=model, args=(Xtrain), f=config.get("onnx_model_path"), input_names=['input'], output_names=['output'],
-                                        verbose=True, do_constant_folding=True, opset_version=11)
-    shutil.copy(config.get("onnx_model_path"),
-                             os.path.join(wandb.run.dir,
-                              os.path.basename(config.get("onnx_model_path"))))
-    wandb.save(config.het("onnx_model_path"))
+    torch.onnx.export(model=model, args=(Xtrain), f="./models/wine_test.onnx", input_names=['input'], output_names=['output'],
+                      verbose=True, do_constant_folding=True, opset_version=11)
+    shutil.copy("./models/wine_test.onnx",
+                os.path.join(wandb.run.dir,
+                             "wine_test.onnx)"))
+    #wandb.save(config.get("onnx_model_path"))
 wandb.finish()
 torch.cuda.empty_cache()
