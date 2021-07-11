@@ -152,6 +152,6 @@ with wandb.init(project="demo_wandb_sklearn", config=config):
     table = wandb.Table(data=df, columns=[predict_y, df_features, df_target])
     wandb.log({"Data Table": table})
 
-    torch.onnx.export(model=model, args=(Xtrain), f="./models/wine_test.onnx", input_names=['input'], output_names=['output'],
-                      verbose=True, do_constant_folding=True, opset_version=11)
+    wandb.save(torch.onnx.export(model=model, args=(Xtrain), f="./models/wine_test.onnx", input_names=['input'], output_names=['output'],
+                      verbose=True, do_constant_folding=True, opset_version=11))
 wandb.finish()
