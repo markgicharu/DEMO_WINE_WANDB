@@ -71,8 +71,8 @@ config = dict(
     dataset="wine dataset",
     architecture='Linear',
     learning_rate=0.01,
-    loss=nn.NLLLoss(),
-    # loss=nn.CrossEntropyLoss(),
+    # loss=nn.NLLLoss(),
+    loss=nn.CrossEntropyLoss(),
     optimizer="adam",
     #optimizer= "adagrad"
 )
@@ -149,7 +149,7 @@ with wandb.init(project="demo_wandb_sklearn", config=config):
                "precision_score": precision_score(Ytest, predict_y, average='weighted'),
                "recall_score": recall_score(Ytest, predict_y, average="weighted")})
 
-    table = wandb.Table(data=df, columns=[df_features, df_target])
+    table = wandb.Table(data=df, columns=[predict_y, df_features, df_target])
     wandb.log({"Data Table": table})
 
     torch.onnx.export(model=model, args=(Xtrain), f="./models/wine_test.onnx", input_names=['input'], output_names=['output'],
