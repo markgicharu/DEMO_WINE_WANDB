@@ -99,9 +99,14 @@ class Net(nn.Module):
         self.fc2 = nn.Linear(hidden_size, hidden_size)
         self.fc3 = nn.Linear(hidden_size, output_size)
 
+        #ADD DROPOUT
+        self.dropout = nn.Dropout(p=0.25)
+
     def forward(self, X):
         X = torch.sigmoid((self.fc1(X)))
+        X = self.dropout(X)
         X = torch.sigmoid(self.fc2(X))
+        X = self.dropout(X)
         X = self.fc3(X)
 
         return F.log_softmax(X, dim=-1)
