@@ -152,31 +152,22 @@ with wandb.init(project="demo_wandb_sklearn", config=config):
     new_model.eval()
 
     # SET THE PREDICTIONS
-    for epoch in range(epochs):
-        test_loss = 0
-        val_acc = 0
 
-        predict = new_model(Xtest)
-        _, predict_y = torch.max(predict, 1)
-        test_loss += loss_fn(predict_y, y_test).item()
-        val_acc += torchmetrics.functional.accuracy(predict_y, y_test)
+    predict = new_model(Xtest)
+    _, predict_y = torch.max(predict, 1)
 
-        # Print Metrics
-        wandb.log(
-            {"Validate": {'Epoch': epoch, "Loss": test_loss.item(), "Accuracy": val_acc}})
+    # VISUALIZE CONFUSION MATRIX
 
-    wandb.log({"Test": {"accuracy_score": accuracy_score(Ytest, predict_y),
-                            "precision_score": precision_score(Ytest, predict_y, average='weighted'),
+    wandb.sklearn.plot_confusion_matrix(Ytest, predict_y, labels=[0, 1, 2])
+    # Print Metrics
+
+    wandb.log({"Validate": {"accuracy_score": accuracy_score(Ytest, predict_y),
+               "precision_score": precision_score(Ytest, predict_y, average='weighted'),
                             "recall_score": recall_score(Ytest, predict_y, average="weighted")}})
 
-    # LOG THE DATABLE FOR THE DATASET
     table = wandb.Table(data=df, columns=[df_features, df_target])
     wandb.log({"Data Table": table})
 
-    # VISUALIZE CONFUSION MATRIX
-    wandb.sklearn.plot_confusion_matrix(Ytest, predict_y, labels=[0, 1, 2])
-
-    # EXPORT THE MODEL
     torch.onnx.export(model=model, args=(Xtrain), f="./models/wine_test.onnx", input_names=['input'], output_names=['output'],
                       verbose=True, do_constant_folding=True, opset_version=11)
     # COPY ONNX TO WANDB RUN DIR FOR LOGGING
