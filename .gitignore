@@ -52,3 +52,8 @@ wandb/run-20210710_150737-3ovfg9md/logs/debug-internal.log
 wandb/run-20210710_150737-3ovfg9md/logs/debug.log
 images/Mark-Profile_test.jpeg
 kornia_edge_detect.py
+lightning.py
+MNIST/*
+MNIST/raw/train-images-idx3-ubyte
+MNIST/raw/train-images-idx3-ubyte.gz
+MNIST/raw/train-labels-idx1-ubyte.gz
