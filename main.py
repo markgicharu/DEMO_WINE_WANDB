@@ -23,6 +23,11 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 # %env "WANDB_NOTEBOOK_NAME" "demo_wine_wandb_test"
 wandb.login()
 
+# SET SEED
+torch.manual_seed(32)
+np.random.seed(32)
+torch.use_deterministic_algorithms(True)
+
 df = pd.read_csv("./data/wine_data.csv")
 df.head()
 
@@ -73,8 +78,8 @@ config = dict(
     learning_rate=0.01,
     # loss=nn.NLLLoss(),
     loss=nn.CrossEntropyLoss(),
-    optimizer="adam",
-    #optimizer= "adagrad"
+    #optimizer="adam",
+    optimizer= "adagrad"
 )
 for k, v in config.items():
     print(f"wandb config{k}:{v}")
@@ -152,6 +157,7 @@ with wandb.init(project="demo_wandb_sklearn", config=config):
     table = wandb.Table(data=df, columns=[predict_y, df_features, df_target])
     wandb.log({"Data Table": table})
 
-    wandb.save(torch.onnx.export(model=model, args=(Xtrain), f="./models/wine_test.onnx", input_names=['input'], output_names=['output'],
-                      verbose=True, do_constant_folding=True, opset_version=11))
+    wine_model_onnx = torch.onnx.export(model=model, args=(Xtrain), f="./models/wine_test.onnx", input_names=['input'], output_names=['output'],
+                      verbose=True, do_constant_folding=True, opset_version=11)
+    wandb.save(wine_model_onnx)
 wandb.finish()
