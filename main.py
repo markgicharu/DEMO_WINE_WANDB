@@ -81,12 +81,12 @@ config = dict(
     onnx_model_path="/models/wine_model.onnx",
     learning_rate=0.01,
     # CHANGE THE LOSS
-    loss=nn.NLLLoss(),
-    #loss=nn.CrossEntropyLoss(),
+    # loss=nn.NLLLoss(),
+    loss=nn.CrossEntropyLoss(),
     # CHANGE THE OPTIMIZER
-    optimizer="adam",
-    #optimizer = "SGD",
-    #optimizer="adagrad"
+    # optimizer="adam",
+    optimizer="SGD",
+    # optimizer="adagrad"
 )
 for k, v in config.items():
     print(f"wandb config{k}:{v}")
@@ -103,13 +103,13 @@ class Net(nn.Module):
         self.fc3 = nn.Linear(hidden_size, output_size)
 
         # ADD DROPOUT
-        self.dropout = nn.Dropout(p=0.25)  # DROPOUT
+        # self.dropout = nn.Dropout(p=0.25)  # DROPOUT
 
     def forward(self, X):
         X = torch.sigmoid((self.fc1(X)))
-        X = self.dropout(X)  # DROPOUT
+        # X = self.dropout(X)  # DROPOUT
         X = torch.sigmoid(self.fc2(X))
-        X = self.dropout(X)  # DROPOUT
+        # X = self.dropout(X)  # DROPOUT
         X = self.fc3(X)
 
         return F.log_softmax(X, dim=-1)
@@ -167,7 +167,7 @@ with wandb.init(project="demo_wandb_sklearn", config=config):
 
     wandb.log({"Test": {"accuracy_score": accuracy_score(Ytest, predict_y),
                "precision_score": precision_score(Ytest, predict_y, average='weighted'),
-                            "recall_score": recall_score(Ytest, predict_y, average="weighted")}})
+                        "recall_score": recall_score(Ytest, predict_y, average="weighted")}})
 
     table = wandb.Table(data=df, columns=[df_features, df_target])
     wandb.log({"Data Table": table})
